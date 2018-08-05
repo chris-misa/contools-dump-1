@@ -23,7 +23,16 @@ export CONTAINER_DEV="eth0"
 # Argument sequence is an associative array
 # between file suffixes and argument strings
 declare -A ARG_SEQ=(
-  ["i0.5_s56_0"]="-c 5 -i 0.5 -s 56"
+  ["i0.5_s56_0"]="-c 100 -i 0.5 -s 56"
+  ["i0.5_s56_1"]="-c 100 -i 0.5 -s 56"
+  ["i0.5_s56_2"]="-c 100 -i 0.5 -s 56"
+  ["i0.5_s56_3"]="-c 100 -i 0.5 -s 56"
+  ["i0.5_s56_4"]="-c 100 -i 0.5 -s 56"
+  ["i0.5_s56_5"]="-c 100 -i 0.5 -s 56"
+  ["i0.5_s56_6"]="-c 100 -i 0.5 -s 56"
+  ["i0.5_s56_7"]="-c 100 -i 0.5 -s 56"
+  ["i0.5_s56_8"]="-c 100 -i 0.5 -s 56"
+  ["i0.5_s56_9"]="-c 100 -i 0.5 -s 56"
 )
 
 # Tag for data directory
@@ -88,7 +97,7 @@ do
   echo $B Running instrumented ... $B
   echo "  Starting packet capture"
   # Start dump on host's outbound iface
-  tcpdump -i $HOST_DEV -w v4_host${i}.pcap icmp &
+  tcpdump -i $NATIVE_DEV -w v4_host${i}.pcap icmp &
   HOST_DUMP_PID=$!
   # Start dump on container's veth end
   ip netns exec $PING_CONTAINER_NAME tcpdump -i $CONTAINER_DEV -w v4_container${i}.pcap icmp &
@@ -121,5 +130,6 @@ done
 $BIG_SLEEP
 docker stop $PING_CONTAINER_NAME
 docker rm $PING_CONTAINER_NAME
+rm -f /var/run/netns/$PING_CONTAINER_NAME
 
 echo Done.
