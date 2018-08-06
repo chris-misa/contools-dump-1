@@ -12,7 +12,7 @@ export TARGET_IPV6="fd41:98cb:a6ff:5a6a::2"
 
 # Native (local) ping command
 export PING_NATIVE_CMD="$(pwd)/iputils/ping"
-export NATIVE_DEV="eth1"
+export NATIVE_DEV="eno1d1"
 
 # Container ping command
 export PING_IMAGE_NAME="chrismisa/contools:ping"
@@ -51,9 +51,9 @@ mkdir $DATE_TAG
 cd $DATE_TAG
 
 # Get some basic meta-data
-# echo "uname -a -> $(uname -a)" >> $META_DATA
-# echo "docker -v -> $(docker -v)" >> $META_DATA
-# echo "sudo lshw -> $(sudo lshw)" >> $META_DATA
+echo "uname -a -> $(uname -a)" >> $META_DATA
+echo "docker -v -> $(docker -v)" >> $META_DATA
+echo "sudo lshw -> $(sudo lshw)" >> $META_DATA
 
 # Start ping container as service
 echo $B Spinning up the ping container $B
@@ -129,7 +129,7 @@ do
 
   # native -> target
   echo "  native -> target"
-  $PING_NATIVE_CMD -6 ${ARG_SEQ[$i]} $TARGET_IPV6 > v6_control_native_target${i}.ping
+  $PING_NATIVE_CMD -6 -I $NATIVE_DEV ${ARG_SEQ[$i]} $TARGET_IPV6 > v6_control_native_target${i}.ping
 
   $LITTLE_SLEEP
 
@@ -153,7 +153,7 @@ do
 
   # native -> target
   echo "  native -> target"
-  $PING_NATIVE_CMD -6 ${ARG_SEQ[$i]} $TARGET_IPV6 > v6_native_target${i}.ping
+  $PING_NATIVE_CMD -6 -I $NATIVE_DEV ${ARG_SEQ[$i]} $TARGET_IPV6 > v6_native_target${i}.ping
 
   $LITTLE_SLEEP
 
