@@ -76,8 +76,8 @@ ln -sf /proc/$PING_CONTAINER_PID/ns/net /var/run/netns/$PING_CONTAINER_NAME
 # Go through tests
 for i in "${!ARG_SEQ[@]}"
 do
-  # Run control
-  echo $B Running control . . . $B
+  # IPv4: Run control
+  echo $B Running IPv4 control . . . $B
 
   $BIG_SLEEP
 
@@ -94,7 +94,7 @@ do
   $LITTLE_SLEEP
 
   # Run under instrumentation
-  echo $B Running instrumented ... $B
+  echo $B Running IPv4 instrumented ... $B
   echo "  Starting packet capture"
   # Start dump on host's outbound iface
   tcpdump -i $NATIVE_DEV -w v4_host${i}.pcap icmp &
@@ -122,7 +122,51 @@ do
   kill $HOST_DUMP_PID
   kill $CONTAINER_DUMP_PID
 
+  # IPv6: Run control
+  echo $B Running IPv6 control . . . $B
+
+  $BIG_SLEEP
+
+  # native -> target
+  echo "  native -> target"
+  $PING_NATIVE_CMD -6 ${ARG_SEQ[$i]} $TARGET_IPV6 > v6_control_native_target${i}.ping
+
   $LITTLE_SLEEP
+
+  # container -> target
+  echo "  container -> target"
+  $PING_CONTAINER_CMD -6 ${ARG_SEQ[$i]} $TARGET_IPV6 > v6_control_container_target${i}.ping
+
+  $LITTLE_SLEEP
+
+  # Run under instrumentation
+  echo $B Running IPv6 instrumented ... $B
+  echo "  Starting packet capture"
+  # Start dump on host's outbound iface
+  tcpdump -i $NATIVE_DEV -w v6_host${i}.pcap icmp6 &
+  HOST_DUMP_PID=$!
+  # Start dump on container's veth end
+  ip netns exec $PING_CONTAINER_NAME tcpdump -i $CONTAINER_DEV -w v6_container${i}.pcap icmp6 &
+  CONTAINER_DUMP_PID=$!
+  
+  $BIG_SLEEP
+
+  # native -> target
+  echo "  native -> target"
+  $PING_NATIVE_CMD -6 ${ARG_SEQ[$i]} $TARGET_IPV6 > v6_native_target${i}.ping
+
+  $LITTLE_SLEEP
+
+  # container -> target
+  echo "  container -> target"
+  $PING_CONTAINER_CMD -6 ${ARG_SEQ[$i]} $TARGET_IPV6 > v6_container_target${i}.ping
+
+  $LITTLE_SLEEP
+
+  # Stop instrumentation
+  echo "  Stopping packet capture"
+  kill $HOST_DUMP_PID
+  kill $CONTAINER_DUMP_PID
 
 done
 
