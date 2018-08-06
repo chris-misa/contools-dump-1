@@ -17,6 +17,10 @@ request = portal.context.makeRequestRSpec()
 node1 = request.RawPC("node1")
 node2 = request.RawPC("node2")
 
+# Force hardware type for consistency
+node1.hardware_type = "m510"
+node2.hardware_type = "m510"
+
 link1 = request.Link(members = [node1, node2])
 
 # Set scripts from repo
